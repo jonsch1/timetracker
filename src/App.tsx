@@ -22,7 +22,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogFooter,
-} from "@/components/ui/dialog"; // Assuming you have a Dialog component
+} from "@/components/ui/dialog";
 import "@/index.css";
 
 interface Activity {
@@ -86,6 +86,47 @@ const App: React.FC = () => {
     useState<boolean>(false);
   const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
 
+  const [showRenameDialog, setShowRenameDialog] = useState<boolean>(false);
+  const [activityToRename, setActivityToRename] = useState<string | null>(null);
+  const [newActivityName, setNewActivityName] = useState<string>("");
+
+  const handleRenameActivity = (activity: string) => {
+    setActivityToRename(activity);
+    setNewActivityName(activity);
+    setShowRenameDialog(true);
+  };
+
+  const confirmRenameActivity = () => {
+    if (
+      activityToRename &&
+      newActivityName &&
+      !possibleActivities.includes(newActivityName)
+    ) {
+      setPossibleActivities((prev) =>
+        prev.map((a) => (a === activityToRename ? newActivityName : a))
+      );
+      setActivities((prev) =>
+        prev.map((a) =>
+          a.name === activityToRename ? { ...a, name: newActivityName } : a
+        )
+      );
+      setDays((prev) =>
+        prev.map((day) => ({
+          ...day,
+          activities: day.activities.map((a) =>
+            a.name === activityToRename ? { ...a, name: newActivityName } : a
+          ),
+        }))
+      );
+      // Update currentActivity if the renamed activity is currently active
+      if (currentActivity === activityToRename) {
+        setCurrentActivity(newActivityName);
+      }
+      setActivityToRename(null);
+      setNewActivityName("");
+      setShowRenameDialog(false);
+    }
+  };
   const handleDeleteActivity = (activity: string) => {
     if (activities.some((a) => a.name === activity)) {
       setActivityToDelete(activity);
@@ -104,6 +145,7 @@ const App: React.FC = () => {
       setShowDeleteWarningDialog(false);
     }
   };
+
   useEffect(() => {
     const storedDays = localStorage.getItem("timeTrackerDays");
     const storedPossibleActivities = localStorage.getItem("possibleActivities");
@@ -265,7 +307,6 @@ const App: React.FC = () => {
     setCurrentActivity(activity);
     setStartTime(now);
   };
-
   const handleDaySelect = (date: string) => {
     setSelectedDay(date);
     const selectedDayData = days.find((day) => day.date === date);
@@ -438,24 +479,28 @@ const App: React.FC = () => {
   return (
     <div className="bg-gray-100">
       <div className="p-8 max-w-4xl mx-auto min-h-screen">
-        <Card className="mb-8 shadow-lg bg-gray-50 rounded-lg">
-          <CardHeader className="text-xl font-semibold pb-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <span className="mb-4 md:mb-0">
+        <Card className="mb-8 shadow-2xl bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden">
+          <CardHeader className="p-6 bg-white bg-opacity-90 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+              <h2 className="text-3xl font-bold tracking-tight mb-2 md:mb-0 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
                 {text.split(" ").map((word, index) => (
                   <span key={index} style={{ color: getColorForWord(index) }}>
                     {word}{" "}
                   </span>
                 ))}
-              </span>
+              </h2>
               <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
                 <Select value={selectedDay} onValueChange={handleDaySelect}>
-                  <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectTrigger className="w-full md:w-[180px] bg-white border-2 border-gray-200 rounded-lg shadow-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     <SelectValue placeholder="Select a day" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white rounded-lg shadow-lg border-2 border-gray-100">
                     {days.map((day) => (
-                      <SelectItem key={day.date} value={day.date}>
+                      <SelectItem
+                        key={day.date}
+                        value={day.date}
+                        className="hover:bg-gray-100 transition-colors duration-150"
+                      >
                         {day.date}
                       </SelectItem>
                     ))}
@@ -469,14 +514,15 @@ const App: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
+          </CardHeader>{" "}
+          <CardContent className="p-6">
+            {" "}
             <div className="flex flex-wrap gap-2 mb-4">
               {possibleActivities.map((activity, index) => (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger>
                     <Badge
-                      className="cursor-pointer text-white px-3 py-1 rounded-full"
+                      className="cursor-pointer text-white px-3 py-2 rounded-full"
                       style={{
                         borderColor: getBadgeColor(
                           activity,
@@ -495,20 +541,25 @@ const App: React.FC = () => {
                       )}
                     </Badge>
                   </ContextMenuTrigger>
-                  <ContextMenuContent className="bg-white">
-                    {" "}
+                  <ContextMenuContent className="bg-white shadow-lg rounded-md p-2">
                     <ContextMenuItem
-                      className="cursor-pointer"
+                      className="cursor-pointer px-4 py-2 hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => handleRenameActivity(activity)}
+                    >
+                      Rename
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      className="cursor-pointer px-4 py-2 hover:bg-gray-100 transition-colors duration-200"
                       onClick={() => handleDeleteActivity(activity)}
                     >
                       Delete
                     </ContextMenuItem>
-                  </ContextMenuContent>
+                  </ContextMenuContent>{" "}
                 </ContextMenu>
-              ))}
+              ))}{" "}
               <Button
                 variant="outline"
-                className="cursor-pointer border-dashed border-2 border-gray-400 text-gray-400 hover:border-gray-600 hover:text-gray-600"
+                className="cursor-pointer rounded-full px-8 border-dashed border-2 border-gray-400 text-gray-400 hover:border-gray-600 hover:text-gray-600"
                 onClick={() => setShowForm(!showForm)}
               >
                 +
@@ -649,6 +700,41 @@ const App: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteWarningDialog(false)}
+                className="border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800"
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
+          <DialogContent className="bg-white rounded-lg shadow-lg p-6">
+            <DialogHeader>
+              <h2 className="text-xl font-semibold">Rename Activity</h2>
+            </DialogHeader>
+            <Input
+              type="text"
+              value={newActivityName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewActivityName(e.target.value)
+              }
+              placeholder="Enter new activity name"
+              className="mt-4 border border-gray-300 rounded-lg px-3 py-2"
+            />
+            <DialogFooter className="mt-6 flex justify-end space-x-4">
+              <Button
+                onClick={confirmRenameActivity}
+                className="bg-blue-500 text-white hover:bg-blue-600"
+                disabled={
+                  !newActivityName ||
+                  possibleActivities.includes(newActivityName)
+                }
+              >
+                Rename
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowRenameDialog(false)}
                 className="border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800"
               >
                 Cancel
