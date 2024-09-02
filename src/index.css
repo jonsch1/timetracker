@@ -2,16 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.blinking {
+  animation: blinkingText 1.2s infinite;
 }
 
-.animate-pulse {
-  animation: pulse 2s infinite;
+@keyframes blinkingText {
+  0% {
+    color: red;
+  }
+  49% {
+    color: red;
+  }
+  60% {
+    color: rgb(255, 255, 255); /* Semi-transparent red */
+  }
+  99% {
+    color: rgb(255, 255, 255); /* Semi-transparent red */
+  }
+  100% {
+    color: red;
+  }
 }
