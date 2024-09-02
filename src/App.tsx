@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { PieChart, Pie, ResponsiveContainer, Tooltip, Cell } from "recharts";
-
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+} from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -39,6 +44,10 @@ const COLORS: string[] = [
   "#FF8042",
   "#8884D8",
   "#82ca9d",
+  "#FF6384",
+  "#36A2EB",
+  "#FFCE56",
+  "#4BC0C0",
 ];
 
 const formatDuration = (minutes: number): string => {
@@ -73,7 +82,28 @@ const App: React.FC = () => {
   const [days, setDays] = useState<DayData[]>([]);
   const [selectedDay, setSelectedDay] = useState<string>("");
   const [showWarningDialog, setShowWarningDialog] = useState<boolean>(false);
+  const [showDeleteWarningDialog, setShowDeleteWarningDialog] =
+    useState<boolean>(false);
+  const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
 
+  const handleDeleteActivity = (activity: string) => {
+    if (activities.some((a) => a.name === activity)) {
+      setActivityToDelete(activity);
+      setShowDeleteWarningDialog(true);
+    } else {
+      setPossibleActivities((prev) => prev.filter((a) => a !== activity));
+    }
+  };
+  const confirmDeleteActivity = () => {
+    if (activityToDelete) {
+      setPossibleActivities((prev) =>
+        prev.filter((a) => a !== activityToDelete)
+      );
+      setActivities((prev) => prev.filter((a) => a.name !== activityToDelete));
+      setActivityToDelete(null);
+      setShowDeleteWarningDialog(false);
+    }
+  };
   useEffect(() => {
     const storedDays = localStorage.getItem("timeTrackerDays");
     const storedPossibleActivities = localStorage.getItem("possibleActivities");
@@ -443,23 +473,38 @@ const App: React.FC = () => {
           <CardContent>
             <div className="flex flex-wrap gap-2 mb-4">
               {possibleActivities.map((activity, index) => (
-                <Badge
-                  key={index}
-                  className="cursor-pointer text-white px-3 py-1 rounded-full"
-                  style={{
-                    borderColor: getBadgeColor(activity, possibleActivities),
-                    backgroundColor: getBadgeColor(
-                      activity,
-                      possibleActivities
-                    ),
-                  }}
-                  onClick={() => handleActivityClick(activity)}
-                >
-                  {activity}
-                  {activity === currentActivity && (
-                    <span className="ml-2 blinking">●</span>
-                  )}
-                </Badge>
+                <ContextMenu key={index}>
+                  <ContextMenuTrigger>
+                    <Badge
+                      className="cursor-pointer text-white px-3 py-1 rounded-full"
+                      style={{
+                        borderColor: getBadgeColor(
+                          activity,
+                          possibleActivities
+                        ),
+                        backgroundColor: getBadgeColor(
+                          activity,
+                          possibleActivities
+                        ),
+                      }}
+                      onClick={() => handleActivityClick(activity)}
+                    >
+                      {activity}
+                      {activity === currentActivity && (
+                        <span className="ml-2 blinking">●</span>
+                      )}
+                    </Badge>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="bg-white">
+                    {" "}
+                    <ContextMenuItem
+                      className="cursor-pointer"
+                      onClick={() => handleDeleteActivity(activity)}
+                    >
+                      Delete
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               ))}
               <Button
                 variant="outline"
@@ -492,8 +537,8 @@ const App: React.FC = () => {
                   Add Activity
                 </Button>
               </form>
-            )}{" "}
-          </CardContent>
+            )}
+          </CardContent>{" "}
         </Card>{" "}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="shadow-lg bg-gray-50 rounded-lg">
@@ -575,6 +620,35 @@ const App: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowWarningDialog(false)}
+                className="border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800"
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={showDeleteWarningDialog}
+          onOpenChange={setShowDeleteWarningDialog}
+        >
+          <DialogContent className="bg-white rounded-lg shadow-lg p-6">
+            <DialogHeader>
+              <h2 className="text-xl font-semibold">Warning</h2>
+            </DialogHeader>
+            <p className="mt-4">
+              This activity is already in the timeline. Are you sure you want to
+              delete it? This will remove it from the timeline as well.
+            </p>
+            <DialogFooter className="mt-6 flex justify-end space-x-4">
+              <Button
+                onClick={confirmDeleteActivity}
+                className="bg-red-500 text-white hover:bg-red-600"
+              >
+                Yes, Delete
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteWarningDialog(false)}
                 className="border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800"
               >
                 Cancel
