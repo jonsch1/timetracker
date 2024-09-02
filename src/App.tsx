@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PieChart, Pie, ResponsiveContainer, Tooltip, Cell } from "recharts";
 
 import { Input } from "@/components/ui/input";
@@ -172,6 +172,14 @@ const App: React.FC = () => {
       )
     );
   };
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (showForm && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showForm]);
 
   const handleActivitySubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -393,17 +401,17 @@ const App: React.FC = () => {
       <div className="p-8 max-w-4xl mx-auto min-h-screen">
         <Card className="mb-8 shadow-lg bg-gray-50 rounded-lg">
           <CardHeader className="text-xl font-semibold pb-4">
-            <div className="flex justify-between items-center">
-              <span>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <span className="mb-4 md:mb-0">
                 {text.split(" ").map((word, index) => (
                   <span key={index} style={{ color: getColorForWord(index) }}>
                     {word}{" "}
                   </span>
                 ))}
-              </span>{" "}
-              <div className="flex items-center space-x-4">
+              </span>
+              <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
                 <Select value={selectedDay} onValueChange={handleDaySelect}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-full md:w-[180px]">
                     <SelectValue placeholder="Select a day" />
                   </SelectTrigger>
                   <SelectContent>
@@ -416,7 +424,7 @@ const App: React.FC = () => {
                 </Select>
                 <Button
                   onClick={handleStartNewDay}
-                  className="bg-blue-500 text-white hover:bg-blue-600"
+                  className="w-full md:w-auto bg-blue-500 text-white hover:bg-blue-600"
                 >
                   Start New Day
                 </Button>
@@ -455,9 +463,10 @@ const App: React.FC = () => {
             {showForm && (
               <form
                 onSubmit={handleActivitySubmit}
-                className="flex space-x-4 mt-4"
+                className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-4"
               >
                 <Input
+                  ref={inputRef}
                   type="text"
                   value={inputValue}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,14 +478,14 @@ const App: React.FC = () => {
                 />
                 <Button
                   type="submit"
-                  className="bg-green-500 text-white hover:bg-green-600"
+                  className="w-full md:w-auto bg-green-500 text-white hover:bg-green-600"
                 >
                   Add Activity
                 </Button>
               </form>
-            )}
+            )}{" "}
           </CardContent>
-        </Card>
+        </Card>{" "}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="shadow-lg bg-gray-50 rounded-lg">
             <CardHeader className="text-lg font-semibold pb-4">
