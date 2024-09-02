@@ -351,7 +351,6 @@ const App: React.FC = () => {
 
     return (
       <div className="relative h-96 overflow-y-auto pr-4">
-        <div className="absolute top-0 bottom-0 left-16 w-px bg-gray-300"></div>
         {Array.from(
           { length: endHour - startHour + 1 },
           (_, i) => startHour + i
@@ -362,7 +361,7 @@ const App: React.FC = () => {
               <span className="w-16 text-right pr-4 text-sm text-gray-500">
                 {formatHour(hour)}
               </span>
-              <div className="flex-grow pl-4">
+              <div className="flex-grow pl-4 border-l border-gray-300">
                 {uniqueActivities
                   .filter((activity) => isActivityInHour(activity, hour))
                   .map((activity) => (
