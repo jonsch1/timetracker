@@ -489,7 +489,7 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="shadow-lg bg-gray-50 rounded-lg">
             <CardHeader className="text-lg font-semibold pb-4">
-              Activity Chart
+              Chart
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -534,7 +534,7 @@ const App: React.FC = () => {
           </Card>
           <Card className="shadow-lg rounded-lg bg-gray-50">
             <CardHeader className="text-lg font-semibold pb-4">
-              Activities Timeline
+              Timeline
             </CardHeader>
             <CardContent>{renderTimeline()}</CardContent>
           </Card>
