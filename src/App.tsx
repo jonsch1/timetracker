@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  PieChart,
-  Pie,
-  ResponsiveContainer,
-  Tooltip,
-  Cell,
-  Label,
-} from "recharts";
+import { PieChart, Pie, ResponsiveContainer, Tooltip, Cell } from "recharts";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogFooter,
