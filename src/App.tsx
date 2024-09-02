@@ -367,7 +367,7 @@ const App: React.FC = () => {
                   .map((activity) => (
                     <div
                       key={`${activity.name}-${activity.startTime.getTime()}`}
-                      className="mb-2 p-2 rounded"
+                      className="mb-2 p-4 rounded-lg shadow-lg w-64"
                       style={{
                         backgroundColor: getBadgeColor(
                           activity.name,
@@ -376,13 +376,23 @@ const App: React.FC = () => {
                         opacity: 0.8,
                       }}
                     >
-                      <span className="font-semibold text-white">
-                        {activity.name}
-                      </span>
-                      <span className="ml-2 text-sm text-white">
-                        ({formatTime(activity.startTime)} -{" "}
-                        {formatDuration(activity.duration)})
-                      </span>
+                      <div className="flex justify-between items-center">
+                        <span className="block font-bold text-lg text-white">
+                          {activity.name}
+                        </span>
+                        <div className="text-right">
+                          <div className="flex items-center justify-end">
+                            <span className="text-sm text-gray-800">
+                              {formatTime(activity.startTime)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-end mt-1">
+                            <span className="text-sm text-gray-800">
+                              {formatDuration(activity.duration)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
               </div>
